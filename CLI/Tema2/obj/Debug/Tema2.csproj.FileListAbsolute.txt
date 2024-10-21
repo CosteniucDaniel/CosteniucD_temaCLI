@@ -1,0 +1,14 @@
+D:\temeEGC\Tema2\Tema2\bin\Debug\Tema2.exe.config
+D:\temeEGC\Tema2\Tema2\bin\Debug\Tema2.exe
+D:\temeEGC\Tema2\Tema2\bin\Debug\Tema2.pdb
+D:\temeEGC\Tema2\Tema2\bin\Debug\OpenTK.dll
+D:\temeEGC\Tema2\Tema2\bin\Debug\System.Drawing.Common.dll
+D:\temeEGC\Tema2\Tema2\bin\Debug\OpenTK.pdb
+D:\temeEGC\Tema2\Tema2\bin\Debug\OpenTK.xml
+D:\temeEGC\Tema2\Tema2\bin\Debug\System.Drawing.Common.pdb
+D:\temeEGC\Tema2\Tema2\bin\Debug\System.Drawing.Common.xml
+D:\temeEGC\Tema2\Tema2\obj\Debug\Tema2.csproj.AssemblyReference.cache
+D:\temeEGC\Tema2\Tema2\obj\Debug\Tema2.csproj.CoreCompileInputs.cache
+D:\temeEGC\Tema2\Tema2\obj\Debug\Tema2.csproj.CopyComplete
+D:\temeEGC\Tema2\Tema2\obj\Debug\Tema2.exe
+D:\temeEGC\Tema2\Tema2\obj\Debug\Tema2.pdb
