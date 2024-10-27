@@ -5,27 +5,45 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace OpenTK_SimpleCube
+namespace OpenTK_SimpleTriangle
 {
-    class SquareExample : GameWindow
+    
+    class TriangleExample : GameWindow
     {
-        private float cubePosX = 0.0f;
-        private float cubePosY = 0.0f;
-        private bool isDragging = false; //variabila pentru a sti dacă cubul este mutat
-        private float lastMousePosX, lastMousePosY; //ultima pozitie cunoscută a mouse-ului
+        Random random = new Random();
+        MouseState mouseState;
+        KeyboardState keyboardState;
+        float r=1,g=0,b=0.5f;
+        private const int XYZ_SIZE = 75;
+        private float cameraAngleX = 30;
+        private float cameraAngleY = 30;
+        private float mouseSensitivity = 0.2f;
+        private MouseState lastMouseState;
+        private Vector3[] triangleVertices;
 
-        public SquareExample() : base(800, 600, new GraphicsMode(32, 24, 0, 8))
+        public TriangleExample() : base(800, 600, new GraphicsMode(32, 24, 0, 8))
         {
             VSync = VSyncMode.On;
-            Console.WriteLine("Muta patratul folosind tastele w,a,s,d si mouseul");
-            Title = "Mutare patrat în OpenTK";
+            Title = "Triunghi fix în OpenTK";
+            Meniu();
         }
-
+        public void Meniu()
+        {
+            Console.Clear();
+            Console.WriteLine("***************MENIU*************");
+            Console.WriteLine("ESC - iesire din program");
+            Console.WriteLine("A - schimba culoarea random");
+            Console.WriteLine("R - reseteaza culoarea");
+            Console.WriteLine("H - help");
+            Console.WriteLine();
+        }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             GL.ClearColor(Color.Blue);
             GL.Enable(EnableCap.DepthTest);
+            string filePath = "D:\\temeEGC\\CLI\\Tema2\\coordonate.txt";
+            triangleVertices = Tema2.CoordonateTriunghi.LoadCoordinates(filePath);
         }
 
         protected override void OnResize(EventArgs e)
@@ -33,10 +51,9 @@ namespace OpenTK_SimpleCube
             base.OnResize(e);
 
             GL.Viewport(0, 0, Width, Height);
-
             double aspect_ratio = Width / (double)Height;
 
-            Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)aspect_ratio, 1, 64);
+            Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)aspect_ratio, 1, 1000);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref perspective);
 
@@ -48,98 +65,128 @@ namespace OpenTK_SimpleCube
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
             KeyboardState keyboard = Keyboard.GetState();
-            // Controlul cubului prin apasarea tastelor w,a,s,d
-            float speed = 0.1f;
-            if (keyboard[Key.W])
+            MouseState mouse = Mouse.GetState();
+
+            if (mouse != lastMouseState)
             {
-                cubePosY += speed;
+                float deltaX = mouse.X - lastMouseState.X;
+                float deltaY = mouse.Y - lastMouseState.Y;
+
+                cameraAngleX += deltaX * mouseSensitivity;
+                cameraAngleY += deltaY * mouseSensitivity;
+
+                cameraAngleY = MathHelper.Clamp(cameraAngleY, -89, 89); 
+
+                lastMouseState = mouse;
             }
-            if (keyboard[Key.S])
-            {
-                cubePosY -= speed;
-            }
-            if (keyboard[Key.A])
-            {
-                cubePosX -= speed;
-            }
-            if (keyboard[Key.D])
-            {
-                cubePosX += speed;
-            }
-            if (keyboard[Key.Escape])
+
+
+            if (keyboard[Key.Escape] && !keyboardState[Key.Escape])
             {
                 Exit();
             }
-            MouseState mouse = Mouse.GetState();
+            //if (mouse[MouseButton.Left] && !mouseState[MouseButton.Left])
+            if (keyboard[Key.A] && !keyboardState[Key.A])
 
-
-
-            // Controlul mutarii cubului prin mouse
-            if (mouse[MouseButton.Left])
             {
-                if (!isDragging)
-                {
-                    
-                    isDragging = true;
-                    lastMousePosX = mouse.X;
-                    lastMousePosY = mouse.Y;
-                }
-                else
-                {
-                    
-                    float deltaX = (mouse.X - lastMousePosX) * 0.01f;
-                    float deltaY = (mouse.Y - lastMousePosY) * 0.01f;
-
-                    cubePosX += deltaX;
-                    cubePosY -= deltaY;
-
-                    lastMousePosX = mouse.X;
-                    lastMousePosY = mouse.Y;
-                }
-            }
-            else
-            {
+                Console.Clear();
+                Meniu();
+                RandomColor();
+                   Console.WriteLine($"Vertex 1: R = {r:F2}, G = {g:F2}, B = {b:F2}");
+                   Console.WriteLine($"Vertex 2: R = {g:F2}, G = {r:F2}, B = {b:F2}");
+                   Console.WriteLine($"Vertex 3: R = {b:F2}, G = {g:F2}, B = {r:F2}");
+                   Console.WriteLine();
                 
-                isDragging = false;
+                
             }
-
-           
+            if (keyboard[Key.R] && !keyboardState[Key.R])
+            {
+                r = 1;
+                g = 0;
+                b = 0.5f;
+            }
+            if (keyboard[Key.H] && !keyboardState[Key.H])
+            {
+                Meniu();
+            }
+            mouseState = mouse;
+            keyboardState = Keyboard.GetState();
         }
-
+        private void RandomColor()
+        {
+            r = (float)random.NextDouble();
+            g = (float)random.NextDouble();
+            b = (float)random.NextDouble();
+        }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.LoadIdentity(); // resetare matrice
+            GL.LoadIdentity();
 
-            GL.Translate(cubePosX, cubePosY, -10.0f); // Poz camera
+            //schimbarea unghiului de camera
+            Matrix4 lookat = Matrix4.LookAt(
+                30 * (float)Math.Cos(MathHelper.DegreesToRadians(cameraAngleY)) * (float)Math.Cos(MathHelper.DegreesToRadians(cameraAngleX)),
+                30 * (float)Math.Sin(MathHelper.DegreesToRadians(cameraAngleY)),
+                30 * (float)Math.Cos(MathHelper.DegreesToRadians(cameraAngleY)) * (float)Math.Sin(MathHelper.DegreesToRadians(cameraAngleX)),
+                0, 0, 0,
+                0, 1, 0
+            );
 
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(ref lookat);
 
-            DrawSquare();
-
-            SwapBuffers(); 
+            DrawTriangle();
+            SwapBuffers();
         }
 
-        private void DrawSquare()
+        private void DrawTriangle()
         {
-            GL.Begin(PrimitiveType.Quads);
 
-
+            // Desenează axa Ox (cu roșu).
+            GL.Begin(PrimitiveType.Lines);
             GL.Color3(Color.Red);
-            GL.Vertex3(-1.0f, -1.0f, 1.0f);
-            GL.Vertex3(1.0f, -1.0f, 1.0f);
-            GL.Vertex3(1.0f, 1.0f, 1.0f);
-            GL.Vertex3(-1.0f, 1.0f, 1.0f);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(XYZ_SIZE, 0, 0);
+            GL.End();
 
-            GL.End(); 
+            // Desenează axa Oy (cu galben).
+            GL.Begin(PrimitiveType.Lines);
+            GL.Color3(Color.Yellow);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(0, XYZ_SIZE, 0); ;
+            GL.End();
+
+            // Desenează axa Oz (cu verde).
+            GL.Begin(PrimitiveType.Lines);
+            GL.Color3(Color.Green);
+            GL.Vertex3(0, 0, 0);
+            GL.Vertex3(0, 0, XYZ_SIZE);
+            GL.End();
+
+            if (triangleVertices != null && triangleVertices.Length == 3)
+            {
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(r, g, b);
+                GL.Vertex3(triangleVertices[0]);
+
+                GL.Color3(g, r, b);
+                GL.Vertex3(triangleVertices[1]);
+
+                GL.Color3(b, g, r);
+                GL.Vertex3(triangleVertices[2]);
+                GL.End();
+            }
         }
+
 
         [STAThread]
         static void Main(string[] args)
         {
-            using (SquareExample example = new SquareExample())
+            using (TriangleExample example = new TriangleExample())
             {
                 example.Run(30.0, 0.0);
             }
