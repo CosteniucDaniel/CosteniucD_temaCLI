@@ -1,4 +1,20 @@
-﻿using System;
+﻿namespace ConsoleApp4
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Window3D wnd = new Window3D();
+            wnd.Run(30.0, 0.0);
+
+        }
+    }
+}
+
+
+
+
+/*using System;
 using System.Drawing;
 using OpenTK;
 using OpenTK.Graphics;
@@ -193,3 +209,4 @@ namespace OpenTK_SimpleTriangle
         }
     }
 }
+*/
